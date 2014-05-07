@@ -1,3 +1,18 @@
+
+/**
+ * Producer consumer problems are important as they form the basis for solutions to 
+ * parallelism problems and at large scale are very useful.  Ring buffers are a 
+ * common solution and this is an exceptionally trivial class to implement a single 
+ * producer consumer using a synchronized class.  In general if synchronized methods/classes
+ * are in-scope as being reasonable to interviews reconsider !
+ * 
+ * Doing parallel ring buffers is a topic for mentioning frameworks such as disruptor
+ * based designs however this is dangerous to talk about as it involves mechanical sympathy
+ * and job interviews are not great places to mention these things as the Java
+ * community is still a little behind on such topics so care is needed not to scare people. 
+ *
+ */
+
 package com.karlmutch;
 
 public class MonitorProducerConsumer {

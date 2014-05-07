@@ -1,3 +1,17 @@
+/**
+ * Becoming more and more common the interview question of using stacks to 
+ * implement queues is another 'knows the answer before the interview' type
+ * fire drill.
+ * 
+ * Using monitor and offer/poll/drain type questions is often asked because
+ * it is assumed that these demonstrate core skills.  This might be valid 
+ * logic but generally these types of core features come from the long 
+ * ago and now are never used because of their limited applicability and so
+ * result in juniors being able to answer them but not often seniors unless
+ * of course they spent their time reading the 'Top 100 Java Questions' lists  
+ * 
+ */
+
 package com.karlmutch;
 
 import java.util.Queue;

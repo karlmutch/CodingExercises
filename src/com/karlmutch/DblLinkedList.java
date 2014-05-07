@@ -1,3 +1,14 @@
+/**
+ * The crazed notion of writing solutions with double linked lists on whiteboards
+ * is something to be feared. Like rebalancing B-Tree's, questions such as recursively
+ * reversing lists in Java simply does not make sense.  Being overly familiar with
+ * this type of coding is a sign of Not Invented Here thinking :-)
+ * 
+ * TODO I will write a recursive based reverse as time allows or if some asks 
+ * 		when I have this file open
+ * 
+ * TODO Unit Testing is not yet done
+ */
 package com.karlmutch;
 
 import java.util.Optional;
@@ -50,6 +61,8 @@ public class DblLinkedList<T> {
 		print();
 	}
 	
+	// The use of Java 8 offers big opportunities for optimization
+	// in this method
 	public void print()
 	{
 		StringBuffer outputList = new StringBuffer();

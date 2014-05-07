@@ -1,3 +1,6 @@
+/**
+ * Handy interface for using with caching example implementations
+ */
 package com.karlmutch;
 
 public interface LRUCache<K,V> {

@@ -1,3 +1,17 @@
+/**
+ * LRU caching questions are becoming more and more common. These problems I think
+ * are relevant and do test both knowledge about a set of common problems faced in
+ * the real world along with testing peoples coding because solutions can move from
+ * a specific application of caches to a generalized implementation.
+ * 
+ * In most cases the people asking questions about this do transition to wider 
+ * discussions that are a good filter.
+ * 
+ * This solution implements a cache that uses a single JDK class which is often not what
+ * interviews want.  Typically they look for the combination of two JDK classes implemented
+ * in my examples inside the TrivialCache class.  
+ */
+
 package com.karlmutch;
 
 import java.lang.ref.SoftReference;

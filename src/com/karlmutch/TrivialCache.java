@@ -1,14 +1,14 @@
-package com.karlmutch;
-
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ConcurrentSkipListMap;
-
 // Example of a simple cache using a LinkedList and a HashMap.  There
 // are many other ways to do this that are far better however these 
 // are interview answers
 //
 // Examples of ways to do this include ehCache based technologies that
 // can do inboard and offboard caching and Guava caches.
+
+package com.karlmutch;
+
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 public class TrivialCache {
 

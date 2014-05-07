@@ -1,3 +1,19 @@
+/**
+ * When was the last time you balanced a tree.  Probably before primates
+ * roamed the rift valley.  Of course as the books and the people that stray
+ * into this area will tell thousands of engineers are hired simply by
+ * being adept as tree style ninja's.
+ * 
+ * Recursion and iteration questions abound but wait :
+ * 
+ * Recursion - Hardly ever do it much anymore
+ * Iteration - I'm now using Java Streams with Lambda's
+ * 
+ * This all leaves me wondering if the people I know memorizing up on these 
+ * problems end up as better engineers.
+ * 
+ */
+
 package com.karlmutch;
 
 import java.util.ArrayList;
