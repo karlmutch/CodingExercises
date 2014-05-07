@@ -11,7 +11,7 @@ During this period I did myself attend an interview where I offered to do a codi
 
 I suspect doing well at coding exercises on a whiteboard is probably an inverse indicator of job preformance because the person doing well at it simply has not been doing the other things that really count in their job role.
 
-So, to save time, allow me to do my day job, and avoid the often pointless task of being asked to do things like coding a prime number finder on a whiteboard I offer the following coding examples.
+So, to save time, allow me to do my day job, and avoid the often pointless task of being asked to do things like coding a prime number finder on a whiteboard I offer the following coding examples.  Checking of parameters is suspended due to most whiteboard examples not having the space to check for null's, empty parameters and the like.
 
 
 Recursive string reversal
