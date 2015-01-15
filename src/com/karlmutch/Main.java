@@ -31,5 +31,16 @@ public class Main {
 				});
 
 		System.out.println(String.join(",", bTree.traverseSpiral()));
+
+		OverlappingRanges ranges = new OverlappingRanges();
+		//  (1,3), (3,5), (7,9), (12,30), (32,42) ] and (9,31)
+		ranges.add(new OverlappingRanges.Range(1, 3));
+		ranges.add(new OverlappingRanges.Range(3, 5));
+		ranges.add(new OverlappingRanges.Range(7, 9));
+		ranges.add(new OverlappingRanges.Range(12, 30));
+		ranges.add(new OverlappingRanges.Range(32, 42));
+		System.out.println(ranges.toString());
+		
+		ranges.add(new OverlappingRanges.Range(9, 31));
 	}
 }
