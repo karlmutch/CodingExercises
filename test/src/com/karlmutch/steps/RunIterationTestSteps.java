@@ -26,13 +26,13 @@ public class RunIterationTestSteps
     }
 
     @When("^you request it be printed$")
-    public void print(int addedFuel) 
+    public void print() 
     {
-    	AvoidLoopsToPrintNumbers.printNumberSequences(mStart,  mEnd);
+    	mResult = AvoidLoopsToPrintNumbers.printNumberSequences(mStart,  mEnd);
     }
 
-    @Then("^a string of \"1 2 3 4 5\" is printed$")
-    public void check(int expectedFuelLevel) {
-    	assertThat(mResult, is(""));
+    @Then("^a string of \"(.*?)\" is printed$")
+    public void check(String expectedString) {
+    	assertThat(mResult, is("{" + expectedString + "}"));
     }
 }
