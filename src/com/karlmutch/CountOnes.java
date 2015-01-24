@@ -1,4 +1,7 @@
 /**
+ *
+ * (c) 2015 by Karl Mutch is licensed under a Creative Commons Attribution 4.0 International License.
+ * 
  * This class implements a solution to the common question count
  * the number of times a digit, in this case a 1, occurs in a number.
  * 
@@ -9,7 +12,7 @@
  * If the interviewer asks about ones counting etc you might want to know 
  * about Hamming Weight or population count problems.  Both of which I 
  * have not dug into given I have never needed these in reality.  These thing
- * * are more often than not solved by cardinality capabilities within products
+ * are more often than not solved by cardinality capabilities within products
  * such as redis and in-memory data structures found in many 3rd party java 
  * packages.
  * 

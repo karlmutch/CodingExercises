@@ -1,4 +1,7 @@
 /**
+ *
+ * (c) 2015 by Karl Mutch is licensed under a Creative Commons Attribution 4.0 International License.
+ * 
  * Odd Man out problems are common questions for testing knowledge of
  * set and collection operations.  Fairly useful but the solutions to
  * these problems are best solved using utility libraries such as 

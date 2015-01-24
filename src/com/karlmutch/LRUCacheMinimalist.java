@@ -1,4 +1,7 @@
 /** 
+ *
+ * (c) 2015 by Karl Mutch is licensed under a Creative Commons Attribution 4.0 International License.
+ * 
  * Enhances original version, LRUCacheLinkedHashMap<K, V>, by using inheritance 
  * rather than encapsulation further simplifying the approach.  To create 
  * a cache of 1024 items the following would work.  Java 8 does re-implement 

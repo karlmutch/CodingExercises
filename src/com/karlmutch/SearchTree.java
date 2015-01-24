@@ -1,4 +1,7 @@
 /**
+ *
+ * (c) 2015 by Karl Mutch is licensed under a Creative Commons Attribution 4.0 International License.
+ * 
  * When was the last time you balanced a tree.  Probably before primates
  * roamed the rift valley.  Of course as the books and the people that stray
  * into this area will tell thousands of engineers are hired simply by

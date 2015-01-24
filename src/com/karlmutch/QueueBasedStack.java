@@ -1,4 +1,7 @@
 /**
+ *
+ * (c) 2015 by Karl Mutch is licensed under a Creative Commons Attribution 4.0 International License.
+ * 
  * Becoming more and more common the interview question of using stacks to 
  * implement queues is another 'knows the answer before the interview' type
  * fire drill.

@@ -1,4 +1,7 @@
 /**
+ *
+ * (c) 2015 by Karl Mutch is licensed under a Creative Commons Attribution 4.0 International License.
+ * 
  * LRU caching questions are becoming more and more common. These problems I think
  * are relevant and do test both knowledge about a set of common problems faced in
  * the real world along with testing peoples coding because solutions can move from

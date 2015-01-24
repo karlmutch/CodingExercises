@@ -1,4 +1,7 @@
 /**
+ *
+ * (c) 2015 by Karl Mutch is licensed under a Creative Commons Attribution 4.0 International License.
+ * 
  * On occasions creativeness might be tested by people asking that problems
  * be solved non-traditionally.  Printing numbers in sequence are a common
  * example of this type of problem.  

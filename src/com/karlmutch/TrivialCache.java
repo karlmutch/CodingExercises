@@ -1,9 +1,14 @@
-// Example of a simple cache using a LinkedList and a HashMap.  There
-// are many other ways to do this that are far better however these 
-// are interview answers
-//
-// Examples of ways to do this include ehCache based technologies that
-// can do inboard and offboard caching and Guava caches.
+/**
+ *
+ * (c) 2015 by Karl Mutch is licensed under a Creative Commons Attribution 4.0 International License.
+ * 
+ * Example of a simple cache using a LinkedList and a HashMap.  There
+ * are many other ways to do this that are far better however these 
+ * are interview answers
+
+ * Examples of ways to do this include ehCache based technologies that
+ * can do onboard and offboard caching and Guava caches.
+ */
 
 package com.karlmutch;
 

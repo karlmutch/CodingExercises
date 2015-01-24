@@ -1,5 +1,7 @@
-
 /**
+ *
+ * (c) 2015 by Karl Mutch is licensed under a Creative Commons Attribution 4.0 International License.
+ * 
  * Producer consumer problems are important as they form the basis for solutions to 
  * parallelism problems and at large scale are very useful.  Ring buffers are a 
  * common solution and this is an exceptionally trivial class to implement a single 

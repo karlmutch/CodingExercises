@@ -1,4 +1,7 @@
 /**
+ *
+ * (c) 2015 by Karl Mutch is licensed under a Creative Commons Attribution 4.0 International License.
+ * 
  * Often interview questions might drift to the topic of performing iterative
  * operations, then converting them to recursive, and then attacking performance
  * issues by using already completed results.

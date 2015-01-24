@@ -1,3 +1,8 @@
+/**
+ *
+ * (c) 2015 by Karl Mutch is licensed under a Creative Commons Attribution 4.0 International License.
+ * 
+ */
 package com.karlmutch.steps;
 
 
@@ -11,7 +16,7 @@ import cucumber.api.java.en.When;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class RunIterationTestSteps
+public class AvoidLoopsToPrintNumbersTestSteps
 {
 	private int mStart;
 	private int mEnd;

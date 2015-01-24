@@ -1,4 +1,7 @@
 /**
+ *
+ * (c) 2015 by Karl Mutch is licensed under a Creative Commons Attribution 4.0 International License.
+ * 
  * FizzBuzz, while I heard rumors people do ask about it I had never encountered the 
  * occasion until recently so here it is.
  * 

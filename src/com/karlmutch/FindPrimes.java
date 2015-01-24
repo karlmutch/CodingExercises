@@ -1,4 +1,7 @@
 /**
+ *
+ * (c) 2015 by Karl Mutch is licensed under a Creative Commons Attribution 4.0 International License.
+ * 
  * This is a common question with people that appreciate tricks and tips behind
  * problems.  These tips and tricks are rendered largely redundant especially
  * in Java where BigInteger has a method, isProbablyAPrime.  Also an optimization
