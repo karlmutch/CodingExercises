@@ -36,6 +36,9 @@ package com.karlmutch;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -52,7 +55,7 @@ public class FindPrimes {
 	private BigInteger mStarting = BigInteger.valueOf(2);
 	private BigInteger mTerminating = BigInteger.valueOf(100);
 	
-	ArrayList<BigInteger> mCandidates;
+	List<BigInteger> mCandidates = new ArrayList<BigInteger>();
 
 	public FindPrimes(final BigInteger startingNumber, final BigInteger terminatingNumber)
 	{
@@ -67,39 +70,41 @@ public class FindPrimes {
 		// API's, this took me about 15 minutes to put together using online documentation so
 		// it is not yet something I throw together from memory or instinctively but I am getting
 		// there
-		Stream<BigInteger> candidates = Stream.iterate(mStarting, n -> n.add(BigInteger.ONE)).
+		//
+		// TODO One optimization is to add 2 every time starting with an odd number because
+		// there implicitly is no reason to retest event numbers
+		mCandidates = Stream.iterate(mStarting, item -> item.add(BigInteger.ONE)).
 											   limit(difference.longValue()).
 											   parallel().
-											   filter(n -> n.isProbablePrime(1));
-
-		// Streams are consumed so once this is done there is nothing left in the candidates stream
-		candidates.forEach(n -> mCandidates.add(n));
+											   filter(n -> n.isProbablePrime(1)).
+											   collect(Collectors.toList());
 	}
 	
-	// The BigInteger package does not have a sqrt so we have a 'good enough' method here that will bias on the high side
+	// The BigInteger package does not have a sqrt so we have a 'good enough' method 
+	// here that is approximate.
 	//
-	// Other methods are available using approximation etc and a good starting point to read about these can be found 
-	// here http://web.archive.org/web/20110714075116/http://www.merriampark.com/bigsqrt.htm.
+	// This method essentially is documented here, 
+	// http://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method 
+	//
+	// Other methods are available using approximation etc and a good starting point 
+	// to read about these can be found 
+	// here http://web.archive.org/web/20110714075116/, http://www.merriampark.com/bigsqrt.htm.
 	//
 	// I am not a professional mathematician so wont do much more than stop here and say that if one is a domain where
 	// this is really important them domain experts should be consulted
-	private static BigInteger sqrt(BigInteger n) 
+	private static BigInteger approximateRoot(BigInteger n) 
 	{
-		BigInteger a = BigInteger.ONE;
+		// Guess using divide by 2
+	    BigInteger half = n.shiftRight(1);
 
-		BigInteger b = new BigInteger(n.shiftRight(5).add(new BigInteger("8")).toString());
+	    // Iterate until it converges
+	    while (half.multiply(half).compareTo(n) > 0) 
+	    {
+	        half = half.shiftRight(1);
+	    }
 
-		while (b.compareTo(a) >= 0) 
-		{
-			BigInteger mid = new BigInteger(a.add(b).shiftRight(1).toString());
-			if (mid.multiply(mid).compareTo(n) > 0) {
-				b = mid.subtract(BigInteger.ONE);
-			}
-			else {
-				a = mid.add(BigInteger.ONE);
-			}
-		}
-		return a.add(BigInteger.ONE);
+	    // Blow the result back out to where we were before the approximation
+	    return half.shiftLeft(1);		
 	}
 
 	private static boolean isAPrime(BigInteger aCandidate)
@@ -107,25 +112,24 @@ public class FindPrimes {
 		final BigInteger even = BigInteger.valueOf(2);
 		final BigInteger three = BigInteger.valueOf(3);
 		
-		if ((0 == aCandidate.mod(even).compareTo(BigInteger.ZERO)) ||
-			(0 == aCandidate.mod(three).compareTo(BigInteger.ZERO)))
-		{
-			return(false);
-		}
-
-		if (1 != aCandidate.compareTo(three)) {
+		if (1 > aCandidate.compareTo(three)) {
 			if (0 == aCandidate.compareTo(BigInteger.ONE)) {
 				return(false);
 			}
 			return(true);
 		}
 
-		// One optimization at this point is to record the primes we have seen so far into a concurrent collection
-		// and first divide again those, but lets just use brute force, no whiteboard can fit optimal solutions 
-		// in any event
-		BigInteger divisor = BigInteger.valueOf(5);
-		final BigInteger stoppingPoint = sqrt(aCandidate);
-		while (divisor.compareTo(stoppingPoint) > 0)
+		if ((0 == aCandidate.mod(even).compareTo(BigInteger.ZERO)) ||
+			(0 == aCandidate.mod(three).compareTo(BigInteger.ZERO)))
+		{
+			return(false);
+		}
+
+		// One optimization at this point is to record the primes we have seen so far into 
+		// a concurrent collection and first divide again those, but lets just use brute 
+		// force, no whiteboard can fit optimal solutions in any event
+		final BigInteger stoppingPoint = approximateRoot(aCandidate);
+		for (BigInteger divisor = three ; divisor.compareTo(stoppingPoint) <= 0 ; divisor = divisor.add(BigInteger.valueOf(2)))
 		{
 			if (aCandidate.mod(divisor).compareTo(BigInteger.ZERO) == 0) {
 				return(false);
@@ -136,26 +140,27 @@ public class FindPrimes {
 
 	}
 
-	public ArrayList<BigInteger> getPrimes()
+	public List<BigInteger> getPrimes()
 	{
-		ArrayList<BigInteger> actuals = new ArrayList<BigInteger>();
-
+		List<BigInteger> results = new ArrayList<BigInteger>();
+		
+		results = mCandidates.parallelStream().
+				filter(item -> isAPrime(item)).
+				collect(Collectors.toList());
+		
 		// The list of candidates that we will now be checking long form
 		// have come from a potential parallel implementation which could
 		// cause issues for calling clients that assume tight ordering so I will
-		// sort the inputs before beginning
+		// first remove duplicates, and then sort the inputs before returning them
 		
-		Collections.sort(mCandidates);
+		// This removes duplicates but is not stable
+		HashSet<BigInteger> uniquePrimes = new HashSet<BigInteger>();
+		uniquePrimes.addAll(results);
+		results.clear();
+		results.addAll(uniquePrimes);
 		
-		ArrayList<BigInteger> results = new ArrayList<BigInteger>();
-		
-		// Switch back to a more traditional non streaming implementation
-		for (BigInteger aCandidate : mCandidates) 
-		{
-			if (isAPrime(aCandidate)) {
-				actuals.add(aCandidate);
-			}
-		}
+		// Sort the results
+		Collections.sort(results);
 
 		return(results);
 	}
