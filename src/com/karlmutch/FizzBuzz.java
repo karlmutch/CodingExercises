@@ -8,41 +8,50 @@
  * This is a simple problem but one that requires some analysis to realize that there
  * is an overlap, common factors in the case of FizzBuzz, between conditions that the 
  * interviewee needs to both detect and address.
+ * 
+ * Why such as simple question for coding interviews, this is the logical equivalent of asking someone
+ * to string a sentence together for simple literacy.  A coding horror article,
+ * http://blog.codinghorror.com/why-cant-programmers-program, explains the original
+ * inspiration for why this test exists.
  *
  */
-
 package com.karlmutch;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import java.util.stream.IntStream;
 
-public class FizzBuzz {
+public class FizzBuzz 
+{
 	
-	public static ArrayList<String> DoFizzBuzz(int startingNumber, int endingNumber)
+	public static List<String> DoFizzBuzz(int startingNumber, int endingNumber)
 	{
-		ArrayList<String> results = new ArrayList<String>();
+		List<String> results = new ArrayList<String>();
 		
-		IntStream.rangeClosed(startingNumber, endingNumber).forEach(aNumber -> 
-		{
-			if (aNumber % (5 * 3) == 0) {
-				results.add("FizzBuzz");
-			}
-			else {
-				if (aNumber % 3 == 0) {
-					results.add("Fizz");					
-				}
-				else {
-					if (aNumber % 5 == 0) {
-						results.add("Buzz");					
-					}
-					else {
-						results.add(Integer.toString(aNumber));
-					}
-				}
-			}
-		});
+		IntStream.rangeClosed(startingNumber, endingNumber).forEach(aNumber -> results.add(DoFizzBuzz(aNumber)));
 
 		return(results);
+	}
+	
+	public static String DoFizzBuzz(int aNumber) 
+	{
+		if (aNumber % (5 * 3) == 0) {
+			return("FizzBuzz");
+		}
+		else {
+			if (aNumber % 3 == 0) {
+				return("Fizz");					
+			}
+			else {
+				if (aNumber % 5 == 0) {
+					return("Buzz");					
+				}
+				else {
+					return(Integer.toString(aNumber));
+				}
+			}
+		}
 	}
 
 }

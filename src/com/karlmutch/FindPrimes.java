@@ -79,7 +79,7 @@ public class FindPrimes {
 											   filter(n -> n.isProbablePrime(1)).
 											   collect(Collectors.toList());
 	}
-	
+
 	// The BigInteger package does not have a sqrt so we have a 'good enough' method 
 	// here that is approximate.
 	//

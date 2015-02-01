@@ -7,33 +7,28 @@ package com.karlmutch.steps;
 
 
 import com.karlmutch.AvoidLoopsToPrintNumbers;
+import com.karlmutch.RunParameters;
 
-import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 public class AvoidLoopsToPrintNumbersTestSteps
 {
-	private int mStart;
-	private int mEnd;
-	
+	private final RunParameters mParameters;
 	private String mResult;
 
-    @Given("^a sequence starting at (\\d*) ending at (\\d*)$")
-    public void initialize(int start, int end) 
-    {
-    	mStart = start;
-    	mEnd = end;
-    }
+	public AvoidLoopsToPrintNumbersTestSteps(RunParameters parameters)
+	{
+		mParameters = parameters;
+	}
 
     @When("^you request it be printed$")
     public void print() 
     {
-    	mResult = AvoidLoopsToPrintNumbers.printNumberSequences(mStart,  mEnd);
+    	mResult = AvoidLoopsToPrintNumbers.printNumberSequences(mParameters.mRangeStart.get().intValueExact(), mParameters.mRangeEnd.get().intValueExact());
     }
 
     @Then("^a string of \"(.*?)\" is printed$")
