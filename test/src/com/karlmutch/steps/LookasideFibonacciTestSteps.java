@@ -15,7 +15,6 @@ import static org.junit.Assert.assertThat;
 
 public class LookasideFibonacciTestSteps 
 {
-
 	private final RunParameters mParameters;
 
 	private LookasideFibonacci mSeries = new LookasideFibonacci();
@@ -36,7 +35,8 @@ public class LookasideFibonacciTestSteps
     }
 
     @Then("^a total of (\\d*) computations will be done$")
-    public void check(long expectedTally) {
+    public void check(long expectedTally) 
+    {
     	assertThat(mComputations, is(expectedTally));
     }
 }

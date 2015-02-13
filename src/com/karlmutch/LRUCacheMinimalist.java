@@ -31,7 +31,7 @@ public class LRUCacheMinimalist<K, V> extends LinkedHashMap<K, V>
 	    super(maxEntries + 1, 0.75f, true);
 	    mMaxEntries = maxEntries;
 	}
-	
+
 	@Override
 	protected boolean removeEldestEntry(final Map.Entry<K, V> eldest) 
 	{
