@@ -23,6 +23,7 @@ import java.util.Map;
 
 @SuppressWarnings("serial")
 public class LRUCacheMinimalist<K, V> extends LinkedHashMap<K, V> 
+									  implements LRUCache<K, V> 
 {
 	public LRUCacheMinimalist(final int maxEntries) 
 	{
@@ -38,6 +39,11 @@ public class LRUCacheMinimalist<K, V> extends LinkedHashMap<K, V>
 	    return(super.size() > mMaxEntries);
 	}
 
+	@Override
+	public V atomicGetAndSet(K key, V item) 
+	{
+		return(put(key, item));
+	}
+
 	private final int mMaxEntries;
 }
-

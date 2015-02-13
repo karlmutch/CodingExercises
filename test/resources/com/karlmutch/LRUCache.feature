@@ -1,4 +1,4 @@
-Feature: Leveraged a Least Recently Used Cache
+Feature: Leverage a Least Recently Used Cache
     Exercise knowledge of how to combine collection types as building blocks, Linked Lists and Maps
 
 Scenario: Fill a cache and check appropriate entries were ejected

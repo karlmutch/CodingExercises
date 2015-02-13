@@ -18,8 +18,10 @@
 package com.karlmutch;
 
 import java.lang.ref.SoftReference;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 // This method of implementing a cache is the shortest path using just JDK classes for a naieve
 // cache
@@ -66,4 +68,17 @@ public class LRUCacheLinkedHashMap<K, V> implements LRUCache<K, V>
 	    put(key, value);
 	    return result;
 	}
+	
+	@Override
+	public Collection<V> values()
+	{
+		Collection<V> validValues = mCache.values().stream()
+				.filter(reference -> (reference.get() != null))
+				.map(item -> { return item.get(); })
+				.collect(Collectors.toList());
+
+		return(validValues);
+
+	}
+
 }

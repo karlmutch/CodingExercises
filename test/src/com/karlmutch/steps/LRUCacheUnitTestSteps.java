@@ -6,9 +6,9 @@
 package com.karlmutch.steps;
 
 
-import java.util.ArrayList;
 import java.util.List;
 
+import com.karlmutch.LRUCacheLinkedHashMap;
 import com.karlmutch.LRUCacheMinimalist;
 import com.karlmutch.RunParameters;
 
@@ -20,7 +20,14 @@ import static org.junit.Assert.assertThat;
 public class LRUCacheUnitTestSteps
 {
 	private final RunParameters mParameters;
+	
+	// There are two implementations because Java already has a simplistic
+	// collection type that can do a puesdo cache, Guava is really the library
+	// that should be used if available
+	
 	private LRUCacheMinimalist<Integer, String> mCache;
+	private LRUCacheLinkedHashMap<Integer, String> mReferenceCache;
+	
 	private int mItemCount = 0;
 
 	public LRUCacheUnitTestSteps(RunParameters parameters)
@@ -32,9 +39,12 @@ public class LRUCacheUnitTestSteps
     public void select(int cacheSize) 
     {
 		mCache = new LRUCacheMinimalist<Integer, String>(cacheSize);
+		mReferenceCache = new LRUCacheLinkedHashMap<Integer, String>(cacheSize);
+
 		for (String anItem : mParameters.mStrings.get())
 		{
 			mCache.put(++mItemCount, anItem);
+			mReferenceCache.put(mItemCount, anItem);
 		}
     }
 
@@ -42,8 +52,9 @@ public class LRUCacheUnitTestSteps
     public void check(String additionalItemToCache, List<String> expectedItems)
     {
     	mCache.put(++mItemCount, additionalItemToCache);
+		mReferenceCache.put(mItemCount, additionalItemToCache);
 
     	assertThat(mCache.values().toArray(), is(expectedItems.toArray()));
+    	assertThat(mReferenceCache.values().toArray(), is(expectedItems.toArray()));
     }
 }
-
