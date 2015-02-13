@@ -19,8 +19,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 public class LookasideFibonacci 
 {
+	public LookasideFibonacci()
+	{
+		// Initializers to load the first few items into the cache which avoids having 
+		// special case code in the recursive generator
+		mCache.add(BigInteger.ZERO);
+		mCache.add(BigInteger.ONE);
+		mCache.add(BigInteger.ONE);
+	}
+
 	/**
 	 * Retrieves the n'th Fibonacci number
 	 * 
@@ -28,7 +39,7 @@ public class LookasideFibonacci
 	 * 
 	 * @return The n'th number from the sequence
 	 */
-	public static BigInteger get(int number)
+	public BigInteger get(int number)
 	{
 		if (number < 3) 
 		{
@@ -40,27 +51,28 @@ public class LookasideFibonacci
 			return(BigInteger.valueOf(1));
 		}
 
+		mCountCalcs.incrementAndGet();
+
 		return(get(number - 1).add(get(number - 2)));
 	}
 
-	public static BigInteger getWithLookaside(int number)
+	public BigInteger getWithLookaside(int number)
 	{
-		if (mCache.size() < number)
+		if (mCache.size() <= number)
 		{
 			// Calculate a result and then cache it for later use
 			mCache.add(number, getWithLookaside(number - 1).add(getWithLookaside(number - 2)));
+
+			mCountCalcs.incrementAndGet();
 		}
 		return(mCache.get(number));
 	}
 
+	// While this wont make the counter logically safe for threaded used
+	// making it atomic will at least allow multiple threads to
+	// manipulate it without 
+	public AtomicLong mCountCalcs = new AtomicLong(0);
+	
 	// Cheap synchronization to ensure thread safety
-	public static List<BigInteger> mCache = Collections.synchronizedList(new ArrayList<BigInteger>());
-
-	// Use a static initializer block to load the first few items into the cache which avoids having 
-	// special case code in the recursive generator
-	static {
-		mCache.add(BigInteger.ZERO);
-		mCache.add(BigInteger.ONE);
-		mCache.add(BigInteger.ONE);
-	}
+	private List<BigInteger> mCache = Collections.synchronizedList(new ArrayList<BigInteger>());
 }
