@@ -6,12 +6,15 @@
 package com.karlmutch;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Optional;
 
 public class RunParameters 
 {
-	public Optional<BigInteger> mRangeStart;
-	public Optional<BigInteger> mRangeEnd;
+	public Optional<BigInteger> 	mRangeStart;
+	public Optional<BigInteger> 	mRangeEnd;
 
-	public Optional<BigInteger> mNumber;
+	public Optional<BigInteger> 	mNumber;
+	
+	public Optional<List<String> >	mStrings;
 }
