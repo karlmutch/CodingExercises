@@ -11,12 +11,15 @@ package com.karlmutch;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class OddManOut 
 {
 
 	/**
+	 * Method for quickly checking if an array has duplicates
+	 * 
 	 * @return true if there was a duplicate discovered
 	 */
 	public static boolean hasDuplicates(final String [] itemsToCheck)
@@ -40,9 +43,30 @@ public class OddManOut
 		{
 			if (!itemsSeen.add(anItem))
 			{
-				return(false);
+				return(true);
 			}
 		}
-		return(true);
+		return(false);
 	}	
+
+	/**
+	 * Method for stripping out any duplicates using a HashSet that constrains
+	 * values to being unique
+	 */
+	public static String [] stripDuplicates(final String [] itemsToCheck)
+	{
+		return(new HashSet<String>(Arrays.asList(itemsToCheck))
+					.toArray(new String[0]));
+	}
+
+	/**
+	 * Method for stripping out any duplicates using a HashSet that constrains
+	 * values to being unique
+	 */
+	public static String [] stripStableDuplicates(final String [] itemsToCheck)
+	{
+		return(new LinkedHashSet<String>(Arrays.asList(itemsToCheck))
+					.toArray(new String[0]));
+	}
+
 }
