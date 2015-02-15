@@ -7,8 +7,11 @@ package com.karlmutch.steps;
 
 
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.karlmutch.RunParameters;
 
@@ -31,6 +34,9 @@ public class TestDataCollector
 		mParameters.mRangeEnd = Optional.empty();
 		
 		mParameters.mNumber = Optional.empty();
+		
+		mParameters.mString = Optional.empty();
+		mParameters.mStrings = Optional.empty();
 	}
 	
     @Given("^a number range from (\\d*) to (\\d*)$")
@@ -39,7 +45,22 @@ public class TestDataCollector
     	mParameters.mRangeStart = Optional.of(aStartNumber);
     	mParameters.mRangeEnd = Optional.of(anEndNumber);
     }
+
+    @Given("^a string \"(.*)\"$")
+    public void initialize(String anInputString)
+    {
+    	mParameters.mString = Optional.of(anInputString);
+    }
     
+    @Given("^a random string (\\d*) characters long$")
+    public void initialize(long desiredLength)
+    {
+    	StringBuffer resultingString = new StringBuffer();
+    	new Random().ints(desiredLength, ' ', '~' + 1).forEach(chr -> resultingString.append(chr));
+
+        mParameters.mString = Optional.of(resultingString.toString());
+    }
+
     @Given("^a number (\\d*)$")
     public void initialize(BigInteger aNumber)
     {

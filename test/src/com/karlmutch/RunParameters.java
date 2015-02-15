@@ -16,5 +16,6 @@ public class RunParameters
 
 	public Optional<BigInteger> 	mNumber;
 	
+	public Optional<String>	mString;
 	public Optional<List<String> >	mStrings;
 }
