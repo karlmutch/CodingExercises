@@ -5,8 +5,8 @@
  */
 package com.karlmutch;
 
-import java.util.HashSet;
 import java.util.Optional;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public class OverlappingRanges {
@@ -20,7 +20,7 @@ public class OverlappingRanges {
 		public int start;
 		public int end;
 
-		Range(int start, int end)
+		public Range(int start, int end)
 		{
 			this.start = start;
 			this.end = end;
@@ -101,7 +101,7 @@ public class OverlappingRanges {
 
 	public void compress()
 	{
-		HashSet<Range> newRanges = new HashSet<Range>();
+		TreeSet<Range> newRanges = new TreeSet<Range>();
 		
 		Optional<Range> mWorkingRange = Optional.empty();
 		for (Range aRange : mRanges) {
@@ -124,10 +124,11 @@ public class OverlappingRanges {
 	}
 	
 	@Override
-	public String toString() 
+	public String toString()
 	{
 		return(mRanges.stream().map(Range::toString).collect(Collectors.joining(", "))); 
 	}
 
-	HashSet<Range> mRanges = new HashSet<Range>();
+	// Using a Tree Set here allows the operations operating in order to be predictable
+	TreeSet<Range> mRanges = new TreeSet<Range>();
 }

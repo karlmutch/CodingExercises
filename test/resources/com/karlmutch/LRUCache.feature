@@ -9,7 +9,7 @@ Scenario: Fill a cache and check appropriate entries were ejected
     | Second | Third | Fourth | Fifth |
 
     
-Scenario: Semi populate a cache and check no entries were ejected
+Scenario: Partially populate a cache and check no entries were ejected
     Given a series of strings:
     | First | Second | Third | Fourth |
     When adding the series to an LRU cache with a size of 5
