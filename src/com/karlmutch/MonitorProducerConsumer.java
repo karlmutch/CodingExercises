@@ -14,11 +14,12 @@
  * community is still a little behind on such topics so care is needed not to scare people. 
  *
  */
-
 package com.karlmutch;
 
-public class MonitorProducerConsumer {
+import java.time.Duration;
 
+public class MonitorProducerConsumer 
+{
 	public MonitorProducerConsumer()
 	{
 		mBuffer = new char[256];
@@ -33,15 +34,20 @@ public class MonitorProducerConsumer {
 		mOut = 0;
 	}
 
-	public synchronized void Put(char character)
+	public synchronized Duration SetTimeout(final Duration timeout)
+	{
+		Duration result = mTimeout;
+		mTimeout = timeout;
+		return(result);
+	}
+
+	public synchronized void Put(char character) throws InterruptedException
 	{
 		// Wait until there is some space to place the character into our buffer
-		while (mBufferCount == mBuffer.length) {
-			try {
-				wait();
-			}
-			catch (InterruptedException exception) {
-			}
+		while (mBufferCount == mBuffer.length) 
+		{
+			wait(mTimeout.toMillis());
+			
 			// If there are multiple characters retrieved by the consumer then we may
 			// have the condition that the consumer has pulled multiple characters since we
 			// entered this state and we need to flush the notifies until we have room for
@@ -55,15 +61,13 @@ public class MonitorProducerConsumer {
 		notify();
 	}
 	
-	public synchronized char Get()
+	public synchronized char Get() throws InterruptedException
 	{
 		// Wait until there is at least one character in the buffer
-		while (mBufferCount == 0) {
-			try {
-				wait();
-			}
-			catch (InterruptedException exception) {
-			}
+		while (mBufferCount == 0) 
+		{
+			wait(mTimeout.toMillis());
+
 			// When waiting for data we may received notifies due to old actions by the producer
 			// but for which data has already been consumed so we need to loop back around and
 			// check the application level conditions for new data being ready
@@ -82,5 +86,7 @@ public class MonitorProducerConsumer {
 	private char [] mBuffer;
 	private int mBufferCount;
 	private int mIn, mOut;
+
+	private Duration mTimeout = Duration.ZERO;
 
 }
