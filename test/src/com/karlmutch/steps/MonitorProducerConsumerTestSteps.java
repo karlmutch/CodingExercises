@@ -5,7 +5,6 @@
  */
 package com.karlmutch.steps;
 
-
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.time.Duration;
