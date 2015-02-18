@@ -21,3 +21,8 @@ LRU Caching without using Guava, JDK cache style classes etc
 Count the digit n in a number
 
 I will add others as I discover the common cases.
+
+Compilation
+===========
+
+mvn -Dcucumber.installGems=true cuke4duke:cucumber
