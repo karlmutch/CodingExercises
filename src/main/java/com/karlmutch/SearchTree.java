@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 public class SearchTree<K extends Comparable<K>, V>
 {
-    private Optional<Node> mRoot;             // root of BST
+    private Optional<Node> mRoot = Optional.empty();             // root of BST
 
     public class Node implements Comparable<Node>
     {
@@ -181,7 +181,7 @@ public class SearchTree<K extends Comparable<K>, V>
     public void put(K key, V value)
     {
         mRoot = put(mRoot, key, value);
-     
+
         rebalance();
     }
 
@@ -281,12 +281,16 @@ public class SearchTree<K extends Comparable<K>, V>
         return(visited);
     }
 
-    public void print() 
+    public List<String> print() 
     {
-        printNodes(Collections.singletonList(mRoot), 1, height(mRoot));
+        List<String> results = new ArrayList<String>();
+
+        printNodes(Collections.singletonList(mRoot), 1, height(mRoot), results);
+
+		return (results);
     }
 
-    private void printNodes(final List<Optional<Node>> nodes, int level, int maxLevel) 
+    private void printNodes(final List<Optional<Node>> nodes, int level, int maxLevel, List<String> results) 
     {
     	List<Optional<Node>> filtered = nodes.stream().filter(n -> n.isPresent()).collect(Collectors.<Optional<Node>>toList());
 
@@ -317,7 +321,8 @@ public class SearchTree<K extends Comparable<K>, V>
         	currentLine.append(new String(new char[betweenSpaces]).replace("\0", " "));
         }
 
-        System.out.println(currentLine.toString());
+        results.add(currentLine.toString());
+
         currentLine = new StringBuilder();
 
         if (level == maxLevel) {
@@ -356,11 +361,11 @@ public class SearchTree<K extends Comparable<K>, V>
             	currentLine.append(new String(new char[interLayerLines + interLayerLines - i]).replace("\0", " "));
             }
 
-            System.out.println(currentLine.toString());
+            results.add(currentLine.toString());
 
             currentLine = new StringBuilder();
         }
 
-        printNodes(newNodes, level + 1, maxLevel);
+        printNodes(newNodes, level + 1, maxLevel, results);
     }
 }
