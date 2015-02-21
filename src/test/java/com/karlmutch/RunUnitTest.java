@@ -6,7 +6,6 @@ import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
-        format = { "pretty", "html:target/cucumber" },
         glue = "com.karlmutch.steps",
         features = "classpath:com/karlmutch"
 )
