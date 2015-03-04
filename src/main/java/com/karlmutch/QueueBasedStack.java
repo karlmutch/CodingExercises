@@ -31,20 +31,29 @@ public class QueueBasedStack
 	private static BlockingQueue<String> sProducerQueue = new ArrayBlockingQueue<String>(100);
 	private static Queue<String> sConsumerQueue = new LinkedBlockingQueue<String>();
 
-	public void popper()
+	@FunctionalInterface
+	public interface PopperFunc
+	{
+		public boolean postResult(String result);
+	}
+
+	public void popper(PopperFunc callback)
 	{
 		String queueHead = null;
 
 		do {
 			try {
-				while ((queueHead = sProducerQueue.poll(1, TimeUnit.SECONDS)) != null)
+				if ((queueHead = sProducerQueue.poll(100, TimeUnit.MILLISECONDS)) != null)
 				{
+					// The poll will have removed the head so it must be manually
+					// inserted into the consumer queue then the rest of the 
+					// producer queue can be drained if anything else is left
 					sConsumerQueue.add(queueHead);
 					sProducerQueue.drainTo(sConsumerQueue);
 					
-					for (String item : sProducerQueue)
+					for (String item : sConsumerQueue)
 					{
-						System.out.println(item);
+						callback.postResult(item);
 					}
 					
 					sConsumerQueue.clear();
@@ -59,9 +68,7 @@ public class QueueBasedStack
 	public boolean pusher(final String itemToQueue, int timeout, TimeUnit period)
 	{
 		try {
-			sProducerQueue.offer(itemToQueue, timeout, period);
-
-			return(true);
+			return(sProducerQueue.offer(itemToQueue, timeout, period));
 		}
 		catch (InterruptedException ignoredException) 
 		{
@@ -69,5 +76,10 @@ public class QueueBasedStack
 		}
 
 		return(false);
+	}
+	
+	public boolean stop()
+	{
+		return(sShutdown.getAndSet(true));
 	}
 }
