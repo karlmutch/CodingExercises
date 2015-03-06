@@ -13,9 +13,16 @@ package com.karlmutch.steps;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Formatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -29,19 +36,17 @@ import cucumber.api.java.en.When;
 
 public class QueueBasedStackTestSteps 
 {
-	private final RunParameters mParameters;
-	private final QueueBasedStack mQueue = new QueueBasedStack();
+	private RunParameters mParameters;
+	
 	private List<String> mResults = new ArrayList<String>();
 
 	class TestPopper implements QueueBasedStack.PopperFunc
 	{
 		@Override
-		public boolean postResult(final String result) 
+		public void postResult(final String result) 
 		{
 			mResults.add(result);
-			
-			System.out.println(result);
-			
+
 			try {
 				// Negative Numbers allow the input data to stall the consumer
 				Integer pauseConsumer = Integer.parseInt(result);
@@ -59,7 +64,6 @@ public class QueueBasedStackTestSteps
 				// If the pause is broken then continue and do not act explicitly on the broken wait
 				Thread.interrupted();
 			}
-			return (true);
 		}
 	}
 
@@ -71,37 +75,68 @@ public class QueueBasedStackTestSteps
 	@When("^pushing and popping items off a stack$")
 	public void selectTest()
 	{
-		// Start a popper thread
-		Runnable popWorker = () -> {
-			mQueue.popper(new TestPopper());
-		};
-		new Thread(popWorker).start();
+		// Start a popper thread to accept the results of the popper thread
+		Thread mPopperWorker;
+		QueueBasedStack mQueue = new QueueBasedStack();
+
+		{
+			Runnable popWorker = () -> {
+	
+				mQueue.popper(new TestPopper());
+			};
+
+			mPopperWorker = new Thread(popWorker);
+			mPopperWorker.start();
+		}
 
 		// Pushing items on to the stack
 		for (String anItem : mParameters.mStrings.get()) 
 		{
-			mQueue.pusher(anItem, 10, TimeUnit.SECONDS);
+			mQueue.pusher(anItem, 1, TimeUnit.SECONDS);
 
 			try {
 				// Negative Numbers allow the input data to stall the consumer
 				Integer pauseConsumer = Integer.parseInt(anItem);
 				
-				if (1 == pauseConsumer.compareTo(0)) {
-					Thread.sleep(Math.abs(pauseConsumer));
+				if (1 == pauseConsumer.compareTo(0)) 
+				{
+					try {
+						Thread.sleep(Math.abs(pauseConsumer));
+					}
+					catch (InterruptedException ignored)  
+					{
+						// If the pause is broken then continue and do not act explicitly on the broken wait
+						Thread.interrupted();
+					}
 				}
-			} 
+			}
 			catch (NumberFormatException ignored) {
 				// Ignored the case the input not a number.  In these cases it remains in the output
 				// list but is never used for pausing the consumer
+				continue;
 			} 
-			catch (InterruptedException ignored)  
+		}
+
+		// Signal completion to the consumer
+		mQueue.stop();
+
+		// Wait for the worker to stop so that the output list contains all queued
+		// items
+		do {
+			try {
+				mPopperWorker.join();
+			}
+			catch (InterruptedException ignored) 
 			{
-				// If the pause is broken then continue and do not act explicitly on the broken wait
+				// If the worker thread does not exit after five seconds and we are interrupted
+				// it is possible that the last item in the test was a number of milliseconds for pausing
+				// that had us waiting for a long time unexpectedly.
+				//
+				// Even if this is the case and it is the last item in the queue that was left 
+				// then the test results will have enough in them to probably validate correctly
 				Thread.interrupted();
 			}
-		}
-		
-		mQueue.stop();
+		} while (mPopperWorker.getState() != Thread.State.TERMINATED);
 	}
 
 	@Then("the popped items will be:")
@@ -114,5 +149,4 @@ public class QueueBasedStackTestSteps
 		
 		assertThat(mResults, is(expectedOutput));
 	}
-	
 }

@@ -26,15 +26,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class QueueBasedStack 
 {
-	private static AtomicBoolean sShutdown = new AtomicBoolean(false);
+	private AtomicBoolean sShutdown = new AtomicBoolean(false);
 
-	private static BlockingQueue<String> sProducerQueue = new ArrayBlockingQueue<String>(100);
-	private static Queue<String> sConsumerQueue = new LinkedBlockingQueue<String>();
+	private BlockingQueue<String> sProducerQueue = new ArrayBlockingQueue<String>(100);
+	private Queue<String> sConsumerQueue = new LinkedBlockingQueue<String>();
 
 	@FunctionalInterface
 	public interface PopperFunc
 	{
-		public boolean postResult(String result);
+		public void postResult(String result);
 	}
 
 	public void popper(PopperFunc callback)
@@ -58,11 +58,12 @@ public class QueueBasedStack
 					
 					sConsumerQueue.clear();
 				}
-			} catch (InterruptedException ignoredException) 
+			} 
+			catch (InterruptedException ignoredException) 
 			{
 				Thread.interrupted();
 			}
-		} while(!sShutdown.get());
+		} while(!sShutdown.get() || !sProducerQueue.isEmpty());
 	}
 	
 	public boolean pusher(final String itemToQueue, int timeout, TimeUnit period)
