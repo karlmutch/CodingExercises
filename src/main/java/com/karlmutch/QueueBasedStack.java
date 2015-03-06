@@ -26,42 +26,50 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class QueueBasedStack 
 {
-	private static AtomicBoolean sShutdown = new AtomicBoolean(false);
+	private AtomicBoolean sShutdown = new AtomicBoolean(false);
 
-	private static BlockingQueue<String> sProducerQueue = new ArrayBlockingQueue<String>(100);
-	private static Queue<String> sConsumerQueue = new LinkedBlockingQueue<String>();
+	private BlockingQueue<String> sProducerQueue = new ArrayBlockingQueue<String>(100);
+	private Queue<String> sConsumerQueue = new LinkedBlockingQueue<String>();
 
-	public void popper()
+	@FunctionalInterface
+	public interface PopperFunc
+	{
+		public void postResult(String result);
+	}
+
+	public void popper(PopperFunc callback)
 	{
 		String queueHead = null;
 
 		do {
 			try {
-				while ((queueHead = sProducerQueue.poll(1, TimeUnit.SECONDS)) != null)
+				if ((queueHead = sProducerQueue.poll(100, TimeUnit.MILLISECONDS)) != null)
 				{
+					// The poll will have removed the head so it must be manually
+					// inserted into the consumer queue then the rest of the 
+					// producer queue can be drained if anything else is left
 					sConsumerQueue.add(queueHead);
 					sProducerQueue.drainTo(sConsumerQueue);
 					
-					for (String item : sProducerQueue)
+					for (String item : sConsumerQueue)
 					{
-						System.out.println(item);
+						callback.postResult(item);
 					}
 					
 					sConsumerQueue.clear();
 				}
-			} catch (InterruptedException ignoredException) 
+			} 
+			catch (InterruptedException ignoredException) 
 			{
 				Thread.interrupted();
 			}
-		} while(!sShutdown.get());
+		} while(!sShutdown.get() || !sProducerQueue.isEmpty());
 	}
 	
 	public boolean pusher(final String itemToQueue, int timeout, TimeUnit period)
 	{
 		try {
-			sProducerQueue.offer(itemToQueue, timeout, period);
-
-			return(true);
+			return(sProducerQueue.offer(itemToQueue, timeout, period));
 		}
 		catch (InterruptedException ignoredException) 
 		{
@@ -69,5 +77,10 @@ public class QueueBasedStack
 		}
 
 		return(false);
+	}
+	
+	public boolean stop()
+	{
+		return(sShutdown.getAndSet(true));
 	}
 }
