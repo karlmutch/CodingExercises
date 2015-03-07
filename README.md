@@ -1,4 +1,4 @@
-Coding Exercises
+Coding Exercises  [![Build Status](https://travis-ci.org/karlmutch/CodingExercises.svg?branch=master)](https://travis-ci.org/karlmutch/CodingExercises)
 ================
 
 A set of classes typical of job interviews and solutions.
