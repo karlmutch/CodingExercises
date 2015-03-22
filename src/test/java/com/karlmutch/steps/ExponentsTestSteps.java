@@ -29,7 +29,7 @@ public class ExponentsTestSteps
 		mParameters = parameters;
 	}
 
-    @When("^rasing it to the power (\\d+)$")
+    @When("^we raise it to the power (\\d+)$")
     public void select(Integer power) 
     {
     	mPower = power;
