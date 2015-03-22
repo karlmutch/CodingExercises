@@ -5,13 +5,10 @@
  */
 package com.karlmutch.steps;
 
-
 import java.math.BigInteger;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 import com.karlmutch.RunParameters;
 
@@ -21,6 +18,7 @@ import cucumber.api.java.en.Given;
 public class TestDataCollector 
 {
 	private final RunParameters mParameters;
+
 
 	public TestDataCollector(RunParameters parameters)
 	{
@@ -72,4 +70,5 @@ public class TestDataCollector
     {
     	mParameters.mStrings = Optional.of(items);
     }
+    
 }
