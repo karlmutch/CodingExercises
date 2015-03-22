@@ -30,7 +30,7 @@ public class SimpleCalculatorTestSteps
 		mResult = SimpleCalculator.performSimpleCalculation(mParameters.mString.get());
 	}
 	
-	@Then("^the result will be (\\d+)$")
+	@Then("^the trivial calculator result will be (\\d+)$")
 	public void check(float expectedResult)
 	{
     	assertThat(mResult, is(expectedResult));
