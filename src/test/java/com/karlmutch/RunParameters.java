@@ -6,6 +6,7 @@
 package com.karlmutch;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,4 +19,6 @@ public class RunParameters
 	
 	public Optional<String>	mString;
 	public Optional<List<String> >	mStrings;
+	
+	public Optional<ArrayList<ArrayList<BigInteger>>> mIntegerSeries;
 }

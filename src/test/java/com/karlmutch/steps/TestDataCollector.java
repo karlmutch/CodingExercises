@@ -6,6 +6,7 @@
 package com.karlmutch.steps;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -71,4 +72,22 @@ public class TestDataCollector
     	mParameters.mStrings = Optional.of(items);
     }
     
+    @Given("multiple series of integers:")
+    public void initializeSeries(List<String> items)
+    {
+    	mParameters.mStrings = Optional.of(items);
+    	mParameters.mIntegerSeries = Optional.of(new ArrayList<ArrayList<BigInteger>>());
+    	
+    	for (String series : mParameters.mStrings.get()) 
+    	{
+    		ArrayList<BigInteger> integerSeries = new ArrayList<BigInteger>();
+    		
+    		for (String aNumber : series.split(",")) 
+    		{
+    			integerSeries.add(new BigInteger(aNumber.trim()));
+    		}
+    		
+    		mParameters.mIntegerSeries.get().add(integerSeries);
+    	}
+    }
 }
