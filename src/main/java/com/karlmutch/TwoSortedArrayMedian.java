@@ -34,7 +34,7 @@ public class TwoSortedArrayMedian
         // the minimum value is the desired one and when returning the caller can split the 
         // difference through division
         if (k == 1) {
-        	// Equivalent to min function in c++
+        	// Extract the smaller of the two values and pass it back
             return ((1 != shorterArray.get(0).compareTo(longerArray.get(0))) ? shorterArray.get(0) : longerArray.get(0));
         }
 
