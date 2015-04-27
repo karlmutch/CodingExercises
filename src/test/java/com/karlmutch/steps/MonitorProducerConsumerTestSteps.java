@@ -109,7 +109,10 @@ public class MonitorProducerConsumerTestSteps
 	@When("running a producer and consumer")
 	public void selectTest()
 	{
+		@SuppressWarnings("unused")
 		Consumer consumerRunner = new Consumer();
+
+		@SuppressWarnings("unused")
 		Producer producerRunner = new Producer(mParameters.mString.get().toCharArray());
 		
 		while (!mStopTest.get()) 

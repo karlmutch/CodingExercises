@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Random;
 
 import com.karlmutch.RunParameters;
+import com.karlmutch.RunParameters.Pair;
 
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
@@ -88,6 +89,18 @@ public class TestDataCollector
     		}
     		
     		mParameters.mIntegerSeries.get().add(integerSeries);
+    	}
+    }
+
+    @Given("multiple key value pairs:")
+    public void initializeKVPairs(List<String> items)
+    {
+    	mParameters.mKeyValuePairs = Optional.of(new ArrayList<Pair<String, String>>());
+    	
+    	for (String series : items) 
+    	{
+    		String [] kvPair = series.split(",", 2);
+    		mParameters.mKeyValuePairs.get().add(new Pair<String, String>(kvPair[0].trim(), kvPair[1].trim()));
     	}
     }
 }
