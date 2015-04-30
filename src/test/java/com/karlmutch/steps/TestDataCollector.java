@@ -6,10 +6,13 @@
 package com.karlmutch.steps;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.karlmutch.RunParameters;
 import com.karlmutch.RunParameters.Pair;
@@ -72,7 +75,21 @@ public class TestDataCollector
     {
     	mParameters.mStrings = Optional.of(items);
     }
-    
+
+    @Given("^a series of (\\d*) items containing random big integer strings$")
+    public void initializeStringsRandom(int desiredLength)
+    {
+    	List<String> resultingStrings = new ArrayList<String>(desiredLength);
+    	
+    	SecureRandom random = new SecureRandom();
+    	
+    	resultingStrings = Stream.generate(() -> new BigInteger(130, random).toString(32))
+    			.limit(desiredLength)
+    			.collect(Collectors.toList());
+
+        mParameters.mStrings = Optional.of(resultingStrings);
+    }
+
     @Given("multiple series of integers:")
     public void initializeSeries(List<String> items)
     {

@@ -56,7 +56,6 @@ public class HashTableUsingBuckets
 		}
 	}
 
-	
 	private int getHash(String key)
 	{
 		// At this time I am concentrating simply on getting the example
