@@ -72,6 +72,8 @@ public class RunParameters
 	public Optional<String>	mString;
 	public Optional<List<String> >	mStrings;
 	
+	public Optional<List<BigInteger> >	mIntegers;
+
 	public Optional<ArrayList<ArrayList<BigInteger>>> mIntegerSeries;
 
 	public Optional<ArrayList<Pair<String, String>>> mKeyValuePairs;
