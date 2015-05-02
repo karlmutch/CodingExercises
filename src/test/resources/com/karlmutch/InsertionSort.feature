@@ -16,11 +16,11 @@ Scenario: Do a simple optimized insertion sort
     | First | Fourth | Second | Third | 
    
 Scenario: Do a longer optimized insertion sort
-    Given a series of 102400 items containing random big integer strings
+    Given a series of 64000 items containing random big integer strings
     When sorting using an optimized insertion sort
     Then the result will be a sorted collection
     
 Scenario: Do a longer unoptimized insertion sort
-    Given a series of 102400 items containing random big integer strings
+    Given a series of 64000 items containing random big integer strings
     When sorting using an insertion sort
     Then the result will be a sorted collection

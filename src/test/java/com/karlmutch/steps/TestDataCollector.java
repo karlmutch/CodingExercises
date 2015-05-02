@@ -40,6 +40,8 @@ public class TestDataCollector
 		
 		mParameters.mString = Optional.empty();
 		mParameters.mStrings = Optional.empty();
+
+		mParameters.mIntegers = Optional.empty();
 	}
 	
     @Given("^a number range from (\\d*) to (\\d*)$")
@@ -74,6 +76,12 @@ public class TestDataCollector
     public void initialize(List<String> items)
     {
     	mParameters.mStrings = Optional.of(items);
+    }
+
+    @Given("a series of integers:")
+    public void initializeIntegers(List<BigInteger> items)
+    {
+    	mParameters.mIntegers = Optional.of(items);
     }
 
     @Given("^a series of (\\d*) items containing random big integer strings$")

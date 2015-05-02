@@ -5,7 +5,6 @@
  */
 package com.karlmutch.steps;
 
-
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
@@ -77,7 +76,7 @@ public class InsertionSortTestSteps
     	assertThat(mResult, not(Optional.empty()));
     	assertThat(mResult.get(), is(expectedValues));
     }
-    
+
 	Optional<String> previousValue;
 
 	@Then("^the result will be a sorted collection")
