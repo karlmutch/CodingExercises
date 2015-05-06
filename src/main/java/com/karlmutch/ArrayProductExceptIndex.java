@@ -21,12 +21,23 @@ public class ArrayProductExceptIndex
 	{
 		ArrayList<BigInteger> productResults = new ArrayList<BigInteger>(input.length);
 		
-		BigInteger masterProduct = BigInteger.ONE;
+		BigInteger trackedProduct = BigInteger.ONE;
+		
+		// Go forwards using lookaside to store previous products
 		for (BigInteger anItem : input) {
-			masterProduct = masterProduct.multiply(anItem);
+			BigInteger nextProduct = trackedProduct.multiply(anItem);
+			productResults.add(trackedProduct);
+			trackedProduct = nextProduct;
 		}
-		for (BigInteger anItem : input) {
-			productResults.add(masterProduct.divide(anItem));
+		
+		trackedProduct = BigInteger.ONE;
+
+		// Having done the products going from front to back we still need to do them from back to
+		// the front to ensure every item includes multiplied items after it as well as before it.
+		for ( int backIndex = input.length - 1 ; backIndex >= 0 ; --backIndex)
+		{
+			productResults.set(backIndex, productResults.get(backIndex).multiply(trackedProduct));
+			trackedProduct = trackedProduct.multiply(input[backIndex]);
 		}
 		return(productResults.toArray(new BigInteger[input.length]));
 	}
