@@ -22,7 +22,7 @@ So, to save time, and allow me to do my day job I offer the following coding exa
 
 I will add others as I discover common cases.
 
-Comilation
-----------
+Compilation
+-----------
 
 A maven pom file is provided with a small set of Cucumber JVM tests implemented for many of the examples.
