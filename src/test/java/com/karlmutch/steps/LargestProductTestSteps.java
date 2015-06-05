@@ -6,8 +6,6 @@
 package com.karlmutch.steps;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Optional;
 
 import com.karlmutch.LargestProduct;
 import com.karlmutch.RunParameters;
