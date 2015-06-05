@@ -50,7 +50,7 @@ public class SimpleMoviesKnapsackFit
 			return(true);
 		}
 	};
-	
+
 	public static boolean CanFit(long flight_length, Long [] movieLengths)
 	{
 		// This is inefficient compared to an approach that implements a sparse array which

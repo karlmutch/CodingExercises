@@ -53,6 +53,13 @@ public class OverlappingRanges {
 		
 		public boolean overlaps(final Range rightHandSide)
 		{
+			// Completely occluded ranges can complicate things so test for these first
+			if ( ((rightHandSide.start <= start) && (rightHandSide.end >= end)) ||
+				 ((start <= rightHandSide.start) && (end >= rightHandSide.end)) )
+			{
+				return(true);
+			}
+
 			// Treat adjacent ranges as though they were overlaps			
 			return (((start >= rightHandSide.start) && (start <= rightHandSide.end)) || 
 					((end <= rightHandSide.end) && (end >= rightHandSide.start)));
