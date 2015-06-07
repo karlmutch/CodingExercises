@@ -46,3 +46,12 @@ Scenario: Create a combination of ranges were one completely covers another
     And adding a range starting at 5 and ending at 20 to the original range
     And merging the ranges so far
     Then the resulting range will be "{5, 20}"
+
+Scenario: Create a combination of ranges that have one occlusion and one adjacency
+    Given an empty range
+    When adding a range starting at 7 and ending at 9 to the original range
+    And adding a range starting at 3 and ending at 5 to the original range
+    And adding a range starting at 2 and ending at 6 to the original range
+    And merging the ranges so far
+    Then the resulting range will be "{2, 6}, {7, 9}"
+    
