@@ -18,6 +18,13 @@ Checking of parameters is suspended due to most whiteboard examples not having t
 
 There are 30 plus examples available so looking at them all is probably not practical.  Choose some that are small enough or some that are interesting enough to warrant a look at.
 
+#### Recent Additions
+
+* [Distributed Top-K example]
+(https://github.com/karlmutch/CodingExercises/blob/master/src/main/java/com/karlmutch/DistributedTopK.java)
+
+### A selection of what is available
+
 * [Recursive string reversal] (https://github.com/karlmutch/CodingExercises/blob/master/src/main/java/com/karlmutch/OnlyInAnInterviewStrings.java)
 * [A queue implemented using 2 stacks] (https://github.com/karlmutch/CodingExercises/blob/master/src/main/java/com/karlmutch/QueueBasedStack.java)
 * [Simple B-Tree style class with traversals] (https://github.com/karlmutch/CodingExercises/blob/master/src/main/java/com/karlmutch/SearchTree.java)

@@ -32,6 +32,25 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
+		<dependency>
+        	<!-- This dependency provides some analytic characterization functions for large amounts streaming data
+
+        		This library is used to support coding questions and examples that would otherwise require
+        		a large amount of work and very detailed knowledge of mathematical functions such as count-min sketch
+        	-->
+			<groupId>com.clearspring.analytics</groupId>
+			<artifactId>stream</artifactId>
+			<version>2.7.0</version>
+		</dependency>        
+		<dependency>
+        	<!-- This dependency provides a pre-standardization library in the spirit of boost for c++
+
+        		This library is used for some hashing and random number generation capabilities supporting example code
+        	-->
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>18.0</version>
+		</dependency>
     </dependencies>
 
     <build>
