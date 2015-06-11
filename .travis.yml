@@ -6,7 +6,7 @@ branches:
   only:
     - master
     - develop
-    - CustomBuildScripts
+    - feature/CustomBuildScripts
 
 
 before_install:
