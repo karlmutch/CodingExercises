@@ -1,7 +1,5 @@
 language: java
-
-jdk:
-  - oraclejdk8
+jdk: oraclejdk8
 
 
 branches:
@@ -14,7 +12,6 @@ before_install:
   # Update APT (necessary!)
   - sudo apt-get update
 
-
   # curl (to upload the distributables and JavaDoc)
   - sudo apt-get install -y -q curl
   - curl --version
@@ -25,9 +22,9 @@ before_install:
   # Line of code tool (cloc)
   - sudo apt-get install -y -q cloc
   - cloc --version
-  
+
 install:
   - mvn -v
 
-  script: 
+script: 
   - ./.travis.sh
