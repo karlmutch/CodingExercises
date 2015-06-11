@@ -62,15 +62,11 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Collections;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import com.clearspring.analytics.stream.ConcurrentStreamSummary;
 import com.clearspring.analytics.stream.ScoredItem;

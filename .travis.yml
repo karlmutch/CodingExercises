@@ -2,3 +2,32 @@ language: java
 
 jdk:
   - oraclejdk8
+
+
+branches:
+  only:
+    - master
+    - develop
+
+
+before_install:
+  # Update APT (necessary!)
+  - sudo apt-get update
+
+
+  # curl (to upload the distributables and JavaDoc)
+  - sudo apt-get install -y -q curl
+  - curl --version
+
+  # Graphviz (for JavaDoc images; see Gradle tasks)
+  - sudo apt-get install -y -q graphvi
+
+  # Line of code tool (cloc)
+  - sudo apt-get install -y -q cloc
+  - cloc --version
+  
+install:
+  - mvn -v
+
+  script: 
+  - ./.travis.sh
