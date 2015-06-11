@@ -61,12 +61,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Collections;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import com.clearspring.analytics.stream.ConcurrentStreamSummary;
 import com.clearspring.analytics.stream.ScoredItem;
@@ -89,25 +93,34 @@ public class DistributedTopK
 	
 	// For information about the reasons for choosing this implementation please
 	// see http://stackoverflow.com/questions/1301691/java-queue-implementations-which-one
-	private ArrayList<ConcurrentLinkedQueue<String>> mWorkQueues;
+	private List<ConcurrentLinkedQueue<String>> mWorkQueues;
+	
+	private ForkJoinPool mForkJoinPool; 
 
 	// Used to create sort collections of the TopK results
 	class TopKSorter implements Comparator<ScoredItem<String>> 
 	{
 	    @Override
 	    public int compare(ScoredItem<String> left, ScoredItem<String> right) {
-	        return Long.compare(left.getCount(), right.getCount());
+	    	// Switch them up to get the items in descending order
+	        int result = Long.compare(right.getCount(), left.getCount());
+	        
+	        if (result == 0) {
+	        	return(right.getItem().compareTo(left.getItem()));
+	        }
+
+	        return(result);
 	    }
 	}
 
 	// Create a priority sorted collection to hold the topK results.  This will be written too by threads
 	// when they terminate and so I made thread safe at the method level.  The performance hit
 	// is not a great concern for our proof of concept.
-	private SortedSet<ScoredItem<String>> mResults = 
-			Collections.synchronizedSortedSet(new TreeSet<ScoredItem<String>>(new TopKSorter()));
-	
+	private List<ScoredItem<String>> mResults = 
+			Collections.synchronizedList(new ArrayList<ScoredItem<String>>());
+
 	static private AtomicInteger mActiveThreads = new AtomicInteger(0);
-	
+
 	/**
 	 * 
 	 * @param simulatedCountHosts
@@ -118,16 +131,21 @@ public class DistributedTopK
 		mHosts = simulatedCountHosts;
 		mK = K;
 		mWorkQueues = new ArrayList<ConcurrentLinkedQueue<String>>(mHosts);
-		
-		// Set our thread counter to record how many simulated hosts we have
+
+		for (int i = 0 ; i < mHosts ; ++i) {
+			mWorkQueues.add(new ConcurrentLinkedQueue<String>());			
+		}
+
+		// Set our thread counter to record how many simulated hosts we have running in the thread pool
 		mActiveThreads.set(mHosts);
+		mForkJoinPool = new ForkJoinPool(simulatedCountHosts + 1);
 
 		// Start a number of threads, one for each simulated host and have them
 		// use the process loop
-		Arrays.stream(IntStream.rangeClosed(1, simulatedCountHosts).toArray())
+		mForkJoinPool.submit(() -> 
+		Arrays.stream(IntStream.rangeClosed(0, mHosts-1).toArray())
 		      .parallel()
-		      .max()
-		      .ifPresent((i) -> { Process(mWorkQueues.get(i), mK, mResults); });
+		      .forEach((i) -> { Process(mWorkQueues.get(i), mK, mResults); }));
 
 		// Having started the worker threads for our hosts we return to the caller
 		// who in turn will send data into this instance and when completed will
@@ -143,27 +161,33 @@ public class DistributedTopK
 	 * @param results
 	 */
 	static public void Process(ConcurrentLinkedQueue<String> workQueue, 
-							   int k, SortedSet<ScoredItem<String>> results)
+							   int k, List<ScoredItem<String>> results)
 	{
 		ConcurrentStreamSummary<String> urlStream = new ConcurrentStreamSummary<String>(k);
 
-		while (!workQueue.isEmpty() || !mStop.get()) 
+		do 
 		{
 			String message = workQueue.poll();
 			
-			try {
-				// A busy wait which would not normally be used in production code but
-				// used here to simplify the coding example for which this is not the
-				// principle concern / objective.
-				if (null == message) { Thread.sleep(250) ; continue; }
+			if (null == message) {
+
+				if (mStop.get()) { break ; }
+				
+				try {
+					// A busy wait which would not normally be used in production code but
+					// used here to simplify the coding example for which this is not the
+					// principle concern / objective.
+					 Thread.sleep(250) ;
+				}
+				catch (Exception ignoredException) { }
 			}
-			catch (Exception ignoredException) { continue ; }
-			
-			urlStream.offer(message);
-		}
-		
+			else {
+				urlStream.offer(message);
+			}
+		} while (true);
+
 		results.addAll(urlStream.peekWithScores(k));
-		
+
 		// Decrement the counter used by the main to determine when threads have all completed
 		mActiveThreads.decrementAndGet();
 	}
@@ -177,10 +201,10 @@ public class DistributedTopK
 		// Locate the host that has the responsibility for counting this value, first
 		// by generating a hash of the value then using a mod operation to assign
 		// to one of the known hosts in our simulated cluster
-		int hash = mHashingForHostAssignment.newHasher().
+		int hash = Math.abs(mHashingForHostAssignment.newHasher().
 											 putUnencodedChars(aMessage).
-											 hash().asInt();
-		ProcessData(hash % mHosts, aMessage);
+											 hash().asInt());
+		ProcessData(hash % (mHosts - 1), aMessage);
 	}
 
 	/**
@@ -197,7 +221,7 @@ public class DistributedTopK
 	 * 
 	 * @return
 	 */
-	public SortedSet<ScoredItem<String>> StopAndGetTopK() 
+	public List<ScoredItem<String>> StopAndGetTopK() 
 	{
 		mStop.set(true);
 
@@ -212,18 +236,11 @@ public class DistributedTopK
 			}
 			catch (Exception ignoredException) {}
 		}
+
+		// Sort using the count in descending order which is done using the Comparator
+		Collections.sort(mResults, new TopKSorter());
 		
-		return(mResults);
+		// Return only the TopK Slice
+		return(mResults.subList(0, mK));
 	}
 }
-/**
-ConcurrentStreamSummary<String> vs = new ConcurrentStreamSummary<String>(3);
-String[] stream = {"X", "X", "Y", "Z", "A", "B", "C", "X", "X", "A", "C", "A", "A"};
-for (String i : stream) {
-    vs.offer(i);
-}
-List<ScoredItem<String>> topK = vs.peekWithScores(3);
-for (ScoredItem<String> c : topK) {
-    assertTrue(Arrays.asList("A", "C", "X").contains(c.getItem()));
-}
-**/
