@@ -57,7 +57,6 @@
 
 package com.karlmutch;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -70,14 +69,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 
 import com.clearspring.analytics.stream.ConcurrentStreamSummary;
 import com.clearspring.analytics.stream.ScoredItem;
 
 // Guava is used to provide a hashing function which is central to the design but not
-// to the intent of the question which was to write the application layer code
+// to the intent of the question which was to write the distributed portion og the code
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
@@ -90,12 +88,19 @@ public class DistributedTopK
 	// of values destined for Top-K to our simulated hosts
 	HashFunction mHashingForHostAssignment = Hashing.murmur3_32();
 
-	static private AtomicBoolean mStop = new AtomicBoolean(false);
+	// When the system needs to be shutdown this waitable will be unblocked allowing 
+	// worker threads, when appropriate to block on it while waiting for non blocking
+	// retires to retrieve work
+	static private CountDownLatch mStopAll;
 	
 	// For information about the reasons for choosing this implementation please
 	// see http://stackoverflow.com/questions/1301691/java-queue-implementations-which-one
+	//
+	// In short the ConcurrentLinkedQueue uses a Compare-And-Swap implementation rather than
+	// contention fpr access to the queue and so has greater scale which although not 
+	// relevant for this implementation is a useful property at scale
 	private List<ConcurrentLinkedQueue<String>> mWorkQueues;
-	
+
 	private ForkJoinPool mForkJoinPool; 
 
 	// Used to create sort collections of the TopK results
@@ -124,27 +129,33 @@ public class DistributedTopK
 	static private CountDownLatch mWaitOnWorkers = new CountDownLatch(1);
 
 	/**
+	 * Constructor method that will prepare the simulation for TopK and will initialize
+	 * a running thread pool for the hosts waiting for work, one thread per host
 	 * 
-	 * @param simulatedCountHosts
-	 * @param K
+	 * @param simulatedHosts The number of hosts to be simulated for TopK using threads
+	 * @param K The number of items to be reported as heavy hitters
 	 */
-	public DistributedTopK(int simulatedCountHosts, int K)
+	public DistributedTopK(int simulatedHosts, int K)
 	{
-		mHosts = simulatedCountHosts;
+		mHosts = simulatedHosts;
 		mK = K;
 		
 		// Set our thread counter to record how many simulated hosts we have running in the thread pool
-		mWaitOnWorkers = new CountDownLatch(simulatedCountHosts);
+		mWaitOnWorkers = new CountDownLatch(simulatedHosts);
+		
+		// Prepare the shutdown waitable
+		mStopAll = new CountDownLatch(1);
 		
 		// Create a work queue per worker
-		mWorkQueues = new ArrayList<ConcurrentLinkedQueue<String>>(simulatedCountHosts);
+		mWorkQueues = new ArrayList<ConcurrentLinkedQueue<String>>(simulatedHosts);
 
-		for (int i = 0 ; i < simulatedCountHosts ; ++i) {
+		for (int i = 0 ; i < simulatedHosts ; ++i) {
 			mWorkQueues.add(new ConcurrentLinkedQueue<String>());			
 		}
 
-		
-		mForkJoinPool = new ForkJoinPool(simulatedCountHosts + 1);
+		// Create our own ForJoinPool for the worker threads so as to prevent contention with the 
+		// streams API tasks running in the JVM
+		mForkJoinPool = new ForkJoinPool(simulatedHosts + 1);
 
 		// Start a number of threads, one for each simulated host and have them
 		// use the process loop
@@ -160,11 +171,12 @@ public class DistributedTopK
 
 	/**
 	 * Method that processes traffic from a queue and that simulates one of the hosts in
-	 * our distributed cluster.
+	 * our distributed cluster.  When this thread is signaled to be stopped using the
+	 * mStopAll instance variable the results will be placed into the results list 
 	 * 	
-	 * @param workQueue
-	 * @param k
-	 * @param results
+	 * @param workQueue The work queue from which messages for the simulated host can be pulled
+	 * @param k The number of items to be reported as heavy hitters
+	 * @param results A thread safe collection into which the TopK report will be placed when stopped
 	 */
 	static public void Process(ConcurrentLinkedQueue<String> workQueue, 
 							   int k, List<ScoredItem<String>> results)
@@ -177,15 +189,24 @@ public class DistributedTopK
 			
 			if (null == message) {
 
-				if (mStop.get()) { break ; }
-				
+				LocalDateTime timeoutExpiresAt = LocalDateTime.now().plus(250, ChronoUnit.MILLIS);
+
 				try {
-					// A busy wait which would not normally be used in production code but
+					// Calculate how many milliseconds are left to be waiting, use the conversion between
+					// Java 8 Date Time and older Java Interfaces for threading control structures
+					long millisecondsLeft = LocalDateTime.now().until(timeoutExpiresAt, ChronoUnit.MILLIS);
+
+					// A wait which would not normally be used in production code but
 					// used here to simplify the coding example for which this is not the
 					// principle concern / objective.
-					 Thread.sleep(250) ;
+					if (mStopAll.await(millisecondsLeft, TimeUnit.MILLISECONDS)) { break; } 
 				}
-				catch (Exception ignoredException) { }
+				catch (Exception handledException)
+				{
+					// Clear the interruption state to allow the waiting portion of this loop to rewait
+					Thread.interrupted();
+					continue;
+				}
 			}
 			else {
 				urlStream.offer(message);
@@ -199,8 +220,9 @@ public class DistributedTopK
 	}
 
 	/**
+	 * Offer to the TopK worker a message to be processed and then pass it to a nominated host
 	 * 
-	 * @param aMessage
+	 * @param aMessage A string which is to become input to the TopK stream
 	 */
 	public void ProcessData(final String aMessage) 
 	{
@@ -214,9 +236,10 @@ public class DistributedTopK
 	}
 
 	/**
-	 * 
-	 * @param host
-	 * @param aMessage
+	 * Send a message to be processed by TopK to a nominated host worker queue
+	 *  
+	 * @param host The number of the host that has the responsibility to process this message
+	 * @param aMessage A string which is to become input to the TopK stream
 	 */
 	public void ProcessData(int host, final String aMessage) 
 	{
@@ -224,16 +247,20 @@ public class DistributedTopK
 	}
 
 	/**
+	 * Waits for work to be drained within the system and then collates the TopK results
 	 * 
-	 * @return
+	 * @param timeout The length of time to wait for all work to complete before retrieving the results 
+	 * @param timeoutUnit The granularity of the timeout length
+	 * 
+	 * @return If the work was drain will contain the collated and scored TopK results in descending order
 	 */
 	public Optional<List<ScoredItem<String>>> StopAndGetTopK(int timeout, TimeUnit timeoutUnit) 
 	{
-		mStop.set(true);
+		// Unblock waiting worker threads which will cause them to terminate when the
+		// have no work left in their queues and try to block on this latch
+		mStopAll.countDown();
 
-		// Wait for the hosts to all complete their work
-
-		// Determine when we should stop trying
+		// Determine when we should stop trying to wait for worker threads
 		LocalDateTime timeoutExpiresAt = LocalDateTime.now().plus(timeoutUnit.toMillis(timeout), ChronoUnit.MILLIS);
 
 		do {
@@ -242,20 +269,22 @@ public class DistributedTopK
 				// Java 8 Date Time and older Java Interfaces for threading control structures
 				long millisecondsLeft = LocalDateTime.now().until(timeoutExpiresAt, ChronoUnit.MILLIS);
 
+				// Wait for the hosts to all complete their work, which is the same as waiting for
+				// the count down to be 0 for the running workers
 				if (mWaitOnWorkers.await(millisecondsLeft, TimeUnit.MILLISECONDS)) {
 					break;
 				}
 			} 
-			catch (InterruptedException e) 
+			catch (InterruptedException handledException) 
 			{
-				// Clear the interruption state to allow 
+				// Clear the interruption state to allow the waiting portion of this loop to rewait
 				Thread.interrupted();
 				continue;
 			}
-			
+
 			// If we get here then the 
 			return(Optional.empty());
-			
+
 		} while(true);
 
 		// Sort using the count in descending order which is done using the Comparator
