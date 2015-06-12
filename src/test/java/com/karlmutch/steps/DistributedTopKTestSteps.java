@@ -7,7 +7,9 @@ package com.karlmutch.steps;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.SortedSet;
+import java.util.concurrent.TimeUnit;
 
 import com.clearspring.analytics.stream.ScoredItem;
 import com.karlmutch.DistributedTopK;
@@ -21,7 +23,7 @@ import static org.junit.Assert.assertThat;
 public class DistributedTopKTestSteps 
 {
 	private final RunParameters mParameters;
-	private List<ScoredItem<String>> mResult;
+	private Optional<List<ScoredItem<String>>> mResult = Optional.empty();
 
 	public DistributedTopKTestSteps(RunParameters parameters)
 	{
@@ -38,7 +40,7 @@ public class DistributedTopKTestSteps
 			topK.ProcessData(anItem);
 		}
 
-		mResult = topK.StopAndGetTopK();
+		mResult = topK.StopAndGetTopK(5, TimeUnit.SECONDS);
 	}
 
 	@Then("^the sorted TopK will be") 
@@ -48,8 +50,8 @@ public class DistributedTopKTestSteps
 		
 		// Take the sorted items in the TopK scored results and extract just the strings that were counted
 		// without other items and insert them into descending order into the parsedResults
-		mResult.stream().map( entry -> { return entry.getItem(); } ).forEach(item -> { parsedResults.add(item); } );
-		
+		mResult.get().stream().map( entry -> { return entry.getItem(); } ).forEach(item -> { parsedResults.add(item); } );
+
     	assertThat(parsedResults, is(expectedValues));
 	}	
 }
