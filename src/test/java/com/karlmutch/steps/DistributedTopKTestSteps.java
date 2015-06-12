@@ -8,7 +8,8 @@ package com.karlmutch.steps;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.SortedSet;
+
+
 import java.util.concurrent.TimeUnit;
 
 import com.clearspring.analytics.stream.ScoredItem;
