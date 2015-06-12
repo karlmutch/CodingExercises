@@ -57,20 +57,21 @@
 
 package com.karlmutch;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Collections;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import com.clearspring.analytics.stream.ConcurrentStreamSummary;
 import com.clearspring.analytics.stream.ScoredItem;
@@ -119,7 +120,8 @@ public class DistributedTopK
 	private List<ScoredItem<String>> mResults = 
 			Collections.synchronizedList(new ArrayList<ScoredItem<String>>());
 
-	static private AtomicInteger mActiveThreads = new AtomicInteger(0);
+	// Default to only waiting on a single worker, will be changed when object is constructed
+	static private CountDownLatch mWaitOnWorkers = new CountDownLatch(1);
 
 	/**
 	 * 
@@ -130,14 +132,18 @@ public class DistributedTopK
 	{
 		mHosts = simulatedCountHosts;
 		mK = K;
-		mWorkQueues = new ArrayList<ConcurrentLinkedQueue<String>>(mHosts);
+		
+		// Set our thread counter to record how many simulated hosts we have running in the thread pool
+		mWaitOnWorkers = new CountDownLatch(simulatedCountHosts);
+		
+		// Create a work queue per worker
+		mWorkQueues = new ArrayList<ConcurrentLinkedQueue<String>>(simulatedCountHosts);
 
-		for (int i = 0 ; i < mHosts ; ++i) {
+		for (int i = 0 ; i < simulatedCountHosts ; ++i) {
 			mWorkQueues.add(new ConcurrentLinkedQueue<String>());			
 		}
 
-		// Set our thread counter to record how many simulated hosts we have running in the thread pool
-		mActiveThreads.set(mHosts);
+		
 		mForkJoinPool = new ForkJoinPool(simulatedCountHosts + 1);
 
 		// Start a number of threads, one for each simulated host and have them
@@ -188,8 +194,8 @@ public class DistributedTopK
 
 		results.addAll(urlStream.peekWithScores(k));
 
-		// Decrement the counter used by the main to determine when threads have all completed
-		mActiveThreads.decrementAndGet();
+		// Decrement the count down latch used by the main to determine when threads have all completed
+		mWaitOnWorkers.countDown();
 	}
 
 	/**
@@ -221,26 +227,41 @@ public class DistributedTopK
 	 * 
 	 * @return
 	 */
-	public List<ScoredItem<String>> StopAndGetTopK() 
+	public Optional<List<ScoredItem<String>>> StopAndGetTopK(int timeout, TimeUnit timeoutUnit) 
 	{
 		mStop.set(true);
 
 		// Wait for the hosts to all complete their work
-		
-		// A busy wait which would not normally be used in production code but
-		// used here to simplify the coding example for which this is not the
-		// principle concern / objective.
-		while (0 != mActiveThreads.get()) { 
+
+		// Determine when we should stop trying
+		LocalDateTime timeoutExpiresAt = LocalDateTime.now().plus(timeoutUnit.toMillis(timeout), ChronoUnit.MILLIS);
+
+		do {
 			try {
-				Thread.sleep(250) ;
+				// Calculate how many milliseconds are left to be waiting, use the conversion between
+				// Java 8 Date Time and older Java Interfaces for threading control structures
+				long millisecondsLeft = LocalDateTime.now().until(timeoutExpiresAt, ChronoUnit.MILLIS);
+
+				if (mWaitOnWorkers.await(millisecondsLeft, TimeUnit.MILLISECONDS)) {
+					break;
+				}
+			} 
+			catch (InterruptedException e) 
+			{
+				// Clear the interruption state to allow 
+				Thread.interrupted();
+				continue;
 			}
-			catch (Exception ignoredException) {}
-		}
+			
+			// If we get here then the 
+			return(Optional.empty());
+			
+		} while(true);
 
 		// Sort using the count in descending order which is done using the Comparator
 		Collections.sort(mResults, new TopKSorter());
 		
 		// Return only the TopK Slice
-		return(mResults.subList(0, mK));
+		return(Optional.of(mResults.subList(0, mK)));
 	}
 }
