@@ -22,6 +22,8 @@ There are 30 plus examples available so looking at them all is probably not prac
 
 * [Distributed Top-K example]
 (https://github.com/karlmutch/CodingExercises/blob/master/src/main/java/com/karlmutch/DistributedTopK.java)
+* [Random Selection with custom bias distribution example]
+(https://github.com/karlmutch/CodingExercises/blob/master/src/main/java/com/karlmutch/RandomItemWithBias.java)
 
 ### A selection of what is available
 
