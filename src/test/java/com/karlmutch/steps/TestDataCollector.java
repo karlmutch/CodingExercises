@@ -56,7 +56,7 @@ public class TestDataCollector
     {
     	mParameters.mString = Optional.of(anInputString);
     }
-    
+
     @Given("^a random string (\\d*) characters long$")
     public void initialize(long desiredLength)
     {
@@ -71,7 +71,7 @@ public class TestDataCollector
     {
     	mParameters.mNumber = Optional.of(aNumber);
     }
-    
+
     @Given("a series of strings:")
     public void initialize(List<String> items)
     {
@@ -84,11 +84,20 @@ public class TestDataCollector
     	mParameters.mIntegers = Optional.of(items);
     }
 
+    @Given("a series of random numbers are used:")
+    public void initializeRandomNumberGenerator(List<Double> items)
+    {
+    	// Load the example code random number generator with a set of numbers that 
+    	// will be used during testing by example code that is written specifically
+    	// to use it
+    	com.karlmutch.Random.supplyTestData(items);
+    }
+
     @Given("^a series of (\\d*) items containing random big integer strings$")
     public void initializeStringsRandom(int desiredLength)
     {
     	List<String> resultingStrings = new ArrayList<String>(desiredLength);
-    	
+
     	SecureRandom random = new SecureRandom();
     	
     	resultingStrings = Stream.generate(() -> new BigInteger(130, random).toString(32))
