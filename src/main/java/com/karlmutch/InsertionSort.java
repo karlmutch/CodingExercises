@@ -1,6 +1,6 @@
 /**
  *
-* (c) 2015 by Karl Mutch is licensed under a Creative Commons Attribution 4.0 International License.
+ * (c) 2015 by Karl Mutch is licensed under a Creative Commons Attribution 4.0 International License.
  * 
  * On occasion interviewers like to talk about sorting.  Much has occurred over the years 
  * since some of the well known sorting algorithms were initially conceived of.  As 
